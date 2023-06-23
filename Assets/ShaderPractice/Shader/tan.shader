@@ -1,17 +1,19 @@
-Shader "Unlit/sincos"
+Shader "Unlit/tan"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Speed ("Rotation Speed", Range(0, 3)) = 1
-
+        _Color ("Color", Color) = (1, 1, 1, 1)
+        _Sections ("Sections", Range(2, 10)) = 10
     }
     SubShader
     {
+
         Tags
         {
-            "RenderType"="Opaque"
+            "RenderType"="Transparent" "Queue"="Transparent"
         }
+        Blend SrcAlpha OneMinusSrcAlpha
         LOD 100
 
         Pass
@@ -39,26 +41,13 @@ Shader "Unlit/sincos"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _Speed;
-
-            float3 rotationY(float3 vertex)
-            {
-                float c = cos(_Time.y * _Speed);
-                float s = sin(_Time.y * _Speed);
-
-                //rotate on y axis
-                float3x3 m = float3x3
-                (c, 0, s,
-                 0, 1, 0,
-                 -s, 0, c);
-                return mul(m, vertex);
-            }
+            float4 _Color;
+            float _Sections;
 
             v2f vert(appdata v)
             {
                 v2f o;
-                float3 rotYVertex = rotationY(v.vertex);
-                o.vertex = UnityObjectToClipPos(rotYVertex);
+                o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
@@ -66,10 +55,9 @@ Shader "Unlit/sincos"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
+                float4 tanCol = clamp(0, abs(tan((i.uv.y - _Time.x) * _Sections)), 1);
+                tanCol *= _Color;
+                fixed4 col = tex2D(_MainTex, i.uv) * tanCol;
                 return col;
             }
             ENDCG

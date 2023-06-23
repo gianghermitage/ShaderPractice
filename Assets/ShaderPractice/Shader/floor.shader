@@ -1,10 +1,10 @@
-Shader "Unlit/sincos"
+Shader "Unlit/floor"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Speed ("Rotation Speed", Range(0, 3)) = 1
-
+        [IntRange]_Sections ("Sections", Range (2, 10)) = 5
+        _Gamma ("Gamma", Range (0, 1)) = 0
     }
     SubShader
     {
@@ -39,26 +39,13 @@ Shader "Unlit/sincos"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float _Speed;
-
-            float3 rotationY(float3 vertex)
-            {
-                float c = cos(_Time.y * _Speed);
-                float s = sin(_Time.y * _Speed);
-
-                //rotate on y axis
-                float3x3 m = float3x3
-                (c, 0, s,
-                 0, 1, 0,
-                 -s, 0, c);
-                return mul(m, vertex);
-            }
+            float _Sections;
+            float _Gamma;
 
             v2f vert(appdata v)
             {
                 v2f o;
-                float3 rotYVertex = rotationY(v.vertex);
-                o.vertex = UnityObjectToClipPos(rotYVertex);
+                o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o, o.vertex);
                 return o;
@@ -66,11 +53,16 @@ Shader "Unlit/sincos"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
-                return col;
+                float fv = floor(i.uv.y * _Sections) * _Sections / 100;
+                // fixed4 col = tex2D(_MainTex, i.uv);
+                // return col;
+                return float4(fv,fv,fv, 1) + _Gamma;
+
+                // // sample the texture
+                // fixed4 col = tex2D(_MainTex, i.uv);
+                // // apply fog
+                // UNITY_APPLY_FOG(i.fogCoord, col);
+                // return col;
             }
             ENDCG
         }
