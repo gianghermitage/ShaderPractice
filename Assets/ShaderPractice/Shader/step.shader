@@ -1,14 +1,13 @@
-Shader "Unlit/simple"
+Shader "Unlit/step"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _Color ("Texture Color", Color) = (1,1,1,1)
+        [FloatRange]_Edge ("Edge", Range(0,1)) = 0.5
     }
     SubShader
     {
-        Tags { "RenderType"="Transparent" "Queue"="Transparent" }
-        Blend SrcAlpha OneMinusSrcAlpha
+        Tags { "RenderType"="Opaque" }
         LOD 100
 
         Pass
@@ -21,14 +20,12 @@ Shader "Unlit/simple"
 
             #include "UnityCG.cginc"
 
-            //vertex input
             struct appdata
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
             };
 
-            //vertex output
             struct v2f
             {
                 float2 uv : TEXCOORD0;
@@ -38,7 +35,7 @@ Shader "Unlit/simple"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
-            float4 _Color;
+            float _Edge;
 
             v2f vert (appdata v)
             {
@@ -51,12 +48,12 @@ Shader "Unlit/simple"
 
             fixed4 frag (v2f i) : SV_Target
             {
-                return float4(i.uv,1,1);
-                // // sample the texture
-                // fixed4 col = tex2D(_MainTex, i.uv);
-                // // apply fog
-                // UNITY_APPLY_FOG(i.fogCoord, col);
-                // return col * _Color;
+                fixed3 sstep = step(i.uv.y,_Edge);
+                // sample the texture
+                fixed4 col = tex2D(_MainTex, i.uv) * float4(sstep,1);
+                // apply fog
+                UNITY_APPLY_FOG(i.fogCoord, col);
+                return col;
             }
             ENDCG
         }

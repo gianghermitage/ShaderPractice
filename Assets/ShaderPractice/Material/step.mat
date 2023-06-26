@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: test
+  m_Name: step
   m_Shader: {fileID: 4800000, guid: 7014351f22f87c3499f527475b6fd5b3, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
@@ -62,7 +62,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Edge: 0.361
+    - _Edge: 0.512
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
