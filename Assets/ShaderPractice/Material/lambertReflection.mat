@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: length
-  m_Shader: {fileID: 4800000, guid: 00ac8f4baa733264a9c2198d827c0aac, type: 3}
+  m_Name: lambertReflection
+  m_Shader: {fileID: 4800000, guid: 8ca2345350931fd4e844c7cae499b2fd, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -59,19 +59,17 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 1
-    - _Center: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _LightInt: 0.691
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
-    - _Radius: 0.186
-    - _Smooth: 0.334
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
