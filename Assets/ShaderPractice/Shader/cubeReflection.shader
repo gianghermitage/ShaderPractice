@@ -85,9 +85,17 @@ Shader "Unlit/cubeReflection"
                 half3 viewDir =
                     normalize(UnityWorldSpaceViewDir(i.vertex_world));
                 // we add the exposure
-                half3 reflection = AmbientReflection(_ReflectionTex, _ReflectionInt,
-                                                     _ReflectionDet, normal, -viewDir, _ReflectionExp);
+                half3 reflection = AmbientReflection(_ReflectionTex, _ReflectionInt,_ReflectionDet, normal, -viewDir, _ReflectionExp);
                 col.rgb *= reflection + _ReflectionMet;
+
+                // the process mentioned above is replaced by the function
+                // UNITY_SAMPLE_TEXCUBE
+
+                //half3 reflect_world = reflect(-viewDir, normal);
+
+                //half3 reflectionData = UNITY_SAMPLE_TEXCUBE(unity_SpecCube0, reflect_world);
+                //half3 reflectionColor = DecodeHDR(half4(reflectionData.xxx, 1), unity_SpecCube0_HDR);
+                //col.rgb *= reflectionColor;
                 return col;
             }
             ENDCG
