@@ -56,8 +56,6 @@ Shader "Unlit/specularReflection"
             // float4 _SpecularTex_ST;
             float _SpecularInt;
             float _SpecularPow;
-            float4 _LightColor1;
-
 
             v2f vert(appdata v)
             {
@@ -87,22 +85,26 @@ Shader "Unlit/specularReflection"
             {
                 // sample the texture
                 fixed4 col = tex2D(_MainTex, i.uv);
+
                 float3 normal = i.normal_world;
                 fixed3 reflectionColor = _LightColor0.rgb;
                 float3 lightDirection = normalize(_WorldSpaceLightPos0.xyz);
                 half3 diffuse = LambertShading(reflectionColor, _LightInt, normal, lightDirection);
-                // apply fog
-
                 fixed3 reflectionColorSpec = _LightColor0.rgb;
                 fixed3 specCol = tex2D(_SpecularTex, i.uv) * reflectionColorSpec;
-                float3 viewDir = normalize(_WorldSpaceCameraPos - i.vertex_world);
+                //float3 viewDir = normalize(_WorldSpaceCameraPos - i.vertex_world);
+
+                float3 viewDir = normalize(UnityWorldSpaceViewDir(i.vertex_world));
 
 
-                half3 specular = SpecularShading(specCol, _SpecularInt, normal, lightDirection, viewDir, _SpecularPow)
+                half3 specular = SpecularShading(specCol, _SpecularInt, normal, lightDirection, viewDir, _SpecularPow);
+
+                col.rgb *= diffuse;
+
+                col.rgb += specular;
 
                 UNITY_APPLY_FOG(i.fogCoord, col);
-                col.rgb *= diffuse;
-                col.rgb += specular;
+
                 return col;
             }
             ENDCG
