@@ -5,6 +5,7 @@ using UnityEngine;
 public class SimpleColorController : MonoBehaviour
 {
     public ComputeShader m_shader;
+    public Texture m_tex;
 
     public RenderTexture m_mainTex;
 
@@ -23,10 +24,12 @@ public class SimpleColorController : MonoBehaviour
         m_rend.enabled = true;
 
         m_shader.SetTexture(0, "Result", m_mainTex);
+        m_shader.SetTexture(0, "ColTex", m_tex);
+
 
         m_rend.material.SetTexture("_MainTex", m_mainTex);
 
-        m_shader.Dispatch(0, 4, 4, 1);
+        m_shader.Dispatch(0, m_textSize/8, m_textSize/8, 1);
     }
 
     // Update is called once per frame
