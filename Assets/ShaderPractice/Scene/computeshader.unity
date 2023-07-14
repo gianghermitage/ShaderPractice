@@ -240,6 +240,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_shader: {fileID: 7200000, guid: 77330d828cb503e48b85c6debc754001, type: 3}
+  m_tex: {fileID: 2800000, guid: dd11fefad6431f3488ac3dc92e4e3d6b, type: 3}
   m_mainTex: {fileID: 0}
 --- !u!64 &1950334536
 MeshCollider:

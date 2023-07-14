@@ -1,0 +1,42 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+float4 MainColor;
+
+
+// declare the array of values
+struct Circle
+{
+    float radius;
+    float center;
+    float smooth;
+};
+// declare the buffer
+StructuredBuffer<Circle> CircleBuffer;
+
+float CircleShape(float2 midPoint, float center, float radius, float smooth)
+{
+    float c = length(midPoint - center);
+    return smoothstep(c - smooth,c + smooth,radius);
+}
+
+[numthreads(128,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    uint width;
+    uint height;
+
+    Result.GetDimensions(width, height);
+    float2 uv = float2((id,xy + 0.5) / float2(width, height));
+
+    // we access to the array values
+    float center = CircleBuffer[id.x].center;
+    float radius = CircleBuffer[id.x].radius;
+    float smooth = CircleBuffer[id.x].smooth;
+    // we use the value as arguments in the function
+    float c = CircleShape(uv, center, radius, smooth);
+    Result[id.xy] = float4(c, c, c, 1);
+}
