@@ -35,6 +35,9 @@ public class ComputeBufferMono : MonoBehaviour
         SetShaderTex();
     }
 
+
+
+
     private void CreateShaderTex()
     {
         m_mainTex = new RenderTexture(m_textSize, m_textSize, 0, RenderTextureFormat.ARGB32);
@@ -48,8 +51,8 @@ public class ComputeBufferMono : MonoBehaviour
     private void SetShaderTex()
     {
         uint threadGroupSizeX;
-        
-        m_shader.GetKernelThreadGroupSizes(0, out threadGroupSizeX,out _,out _);
+
+        m_shader.GetKernelThreadGroupSizes(0, out threadGroupSizeX, out _, out _);
         int size = (int)threadGroupSizeX;
         m_circle = new Circle[size];
 
@@ -63,9 +66,9 @@ public class ComputeBufferMono : MonoBehaviour
         //circle got 3 float, each take 4 bytes => 3 * 4 = 12
         int stride = 12;
         _mBuffer = new ComputeBuffer(size, 12, ComputeBufferType.Default);
-        
+
         _mBuffer.SetData(m_circle);
-        m_shader.SetBuffer(0,"CircleBuffer",_mBuffer);
+        m_shader.SetBuffer(0, "CircleBuffer", _mBuffer);
 
         m_shader.SetTexture(0, "Result", m_mainTex);
         m_shader.SetVector("MainColor", m_mainColor);
