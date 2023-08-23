@@ -32,6 +32,7 @@ Shader "Unlit/simpleLightning"
                 float4 position : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float3 normal : TEXCOORD1;
+            	float3 worldPos : TEXCOORD2;
             };
 
             float4 _Tint;
@@ -51,6 +52,7 @@ Shader "Unlit/simpleLightning"
 				//	v.normal
 				//);
 
+            	i.worldPos = mul(unity_ObjectToWorld, v.position);
                 i.normal = UnityObjectToWorldNormal(v.normal);
                 i.normal = normalize(i.normal);
                 i.uv = TRANSFORM_TEX(v.uv, +_MainTex);
@@ -67,9 +69,16 @@ Shader "Unlit/simpleLightning"
 				//return float4(i.normal * 0.5 + 0.5, 1);
                 float3 lightDir = _WorldSpaceLightPos0.xyz;
 
+            	float3 viewDir = normalize(_WorldSpaceCameraPos - i.worldPos);
+
+            	float3 reflectionDir = reflect(-lightDir, i.normal);
+
+
 				float3 lightColor = _LightColor0.rgb;
 				float3 diffuse = albedo * lightColor * DotClamped(lightDir, i.normal);
-				return float4(diffuse, 1);
+				//return float4(diffuse, 1);
+            	return float4(reflectionDir * 0.5 + 0.5, 1);
+
 
             }
             ENDCG
