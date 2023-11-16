@@ -22,6 +22,8 @@ Shader "Unlit/simpleLightning"
             CGPROGRAM
             #pragma target 3.0
             #pragma multi_compile _ VERTEXLIGHT_ON
+            #define FORWARD_BASE_PASS
+
             #pragma vertex vert
             #pragma fragment frag
 
