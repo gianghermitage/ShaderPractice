@@ -20,8 +20,12 @@ Shader "Unlit/simpleLightning"
                 "LightMode" = "ForwardBase"
             }
             CGPROGRAM
+            #pragma target 3.0
+            #pragma multi_compile _ VERTEXLIGHT_ON
             #pragma vertex vert
             #pragma fragment frag
+
+
             #include "MyLighting.cginc"
             ENDCG
         }
@@ -32,16 +36,26 @@ Shader "Unlit/simpleLightning"
             {
                 "LightMode" = "ForwardAdd"
             }
-            
+
             //blend 2nd pass with 1st pass
             //if not the 2nd pass will replace 1st pass
-            
+
             //additive blending
             Blend One One
+
+            //second pass has the same depth as prev pass cuz its for the same object 
+            // => disable zWrite since writing to the depth buffer twice is not necessary
+            ZWrite Off
 
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+
+            #pragma target 3.0
+
+            #pragma multi_compile_fwdadd
+            // == #pragma multi_compile DIRECTIONAL POINT SPOT DIRECTIONAL_COOKIE
+
             #include "MyLighting.cginc"
             ENDCG
         }
