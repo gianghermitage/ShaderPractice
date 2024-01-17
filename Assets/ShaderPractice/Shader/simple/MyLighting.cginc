@@ -9,6 +9,7 @@ struct vertex_data
 {
     float4 position : POSITION;
     float3 normal : NORMAL;
+    float4 tangent : TANGENT;
     float2 uv : TEXCOORD0;
 };
 
@@ -17,10 +18,16 @@ struct interpolators
     float4 position : SV_POSITION;
     float4 uv : TEXCOORD0;
     float3 normal : TEXCOORD1;
-    float3 worldPos : TEXCOORD2;
+    #if defined(BINORMAL_PER_FRAGMENT)
+    float4 tangent : TEXCOORD2;
+    #else
+    float3 tangent : TEXCOORD2;
+    float3 binormal : TEXCOORD3;
+    #endif
+    float3 worldPos : TEXCOORD4;
 
     #if defined(VERTEXLIGHT_ON)
-    float3 vertexLightColor : TEXCOORD3;
+    float3 vertexLightColor : TEXCOORD5;
     #endif
 };
 
@@ -29,11 +36,10 @@ sampler2D _MainTex;
 float4 _MainTex_ST;
 float _Smoothness;
 float _Metallic;
-sampler2D _NormalMap;
-float _BumpScale;
+sampler2D _NormalMap, _DetailNormalMap;
+float _BumpScale, _DetailBumpScale;
 sampler2D _DetailTex;
 float4 _DetailTex_ST;
-
 
 
 void ComputeVertexLightColor(inout interpolators i)
@@ -48,6 +54,12 @@ void ComputeVertexLightColor(inout interpolators i)
     #endif
 }
 
+float3 CreateBinormal(float3 normal, float3 tangent, float binormalSign)
+{
+    return cross(normal, tangent.xyz) *
+        (binormalSign * unity_WorldTransformParams.w);
+}
+
 interpolators vert(vertex_data v)
 {
     interpolators i;
@@ -55,8 +67,17 @@ interpolators vert(vertex_data v)
 
     i.worldPos = mul(unity_ObjectToWorld, v.position);
     i.normal = UnityObjectToWorldNormal(v.normal);
-    i.uv.xy = TRANSFORM_TEX(v.uv, +_MainTex);
-    i.uv.zw = TRANSFORM_TEX(v.uv, +_DetailTex);
+
+    #if defined(BINORMAL_PER_FRAGMENT)
+    i.tangent = float4(UnityObjectToWorldDir(v.tangent.xyz), v.tangent.w);
+    #else
+    i.tangent = UnityObjectToWorldDir(v.tangent.xyz);
+    i.binormal = CreateBinormal(i.normal, i.tangent, v.tangent.w);
+    #endif
+
+
+    i.uv.xy = TRANSFORM_TEX(v.uv, _MainTex);
+    i.uv.zw = TRANSFORM_TEX(v.uv, _DetailTex);
     ComputeVertexLightColor(i);
     return i;
 }
@@ -111,8 +132,22 @@ void InitializeFragmentNormal(inout interpolators i)
     // i.normal.z = sqrt(1 - saturate(dot(i.normal.xy, i.normal.xy)));
 
 
-    i.normal = UnpackScaleNormal(tex2D(_NormalMap, i.uv.xy), _BumpScale);
+    float3 mainNormal = UnpackScaleNormal(tex2D(_NormalMap, i.uv.xy), _BumpScale);
+    float3 detailNormal = UnpackScaleNormal(tex2D(_DetailNormalMap, i.uv.zw), _DetailBumpScale);
+    float3 tangentSpaceNormal = BlendNormals(mainNormal, detailNormal);
+    tangentSpaceNormal = tangentSpaceNormal.xzy;
 
+    #if defined(BINORMAL_PER_FRAGMENT)
+    float3 binormal = CreateBinormal(i.normal, i.tangent.xyz, i.tangent.w);
+    #else
+    float3 binormal = i.binormal;
+    #endif
+
+    i.normal = normalize(
+        tangentSpaceNormal.x * i.tangent +
+        tangentSpaceNormal.y * binormal +
+        tangentSpaceNormal.z * i.normal
+    );
 
     //Swap y and z since normal map store z-UP
     i.normal = i.normal.xzy;
