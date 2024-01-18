@@ -135,7 +135,6 @@ void InitializeFragmentNormal(inout interpolators i)
     float3 mainNormal = UnpackScaleNormal(tex2D(_NormalMap, i.uv.xy), _BumpScale);
     float3 detailNormal = UnpackScaleNormal(tex2D(_DetailNormalMap, i.uv.zw), _DetailBumpScale);
     float3 tangentSpaceNormal = BlendNormals(mainNormal, detailNormal);
-    tangentSpaceNormal = tangentSpaceNormal.xzy;
 
     #if defined(BINORMAL_PER_FRAGMENT)
     float3 binormal = CreateBinormal(i.normal, i.tangent.xyz, i.tangent.w);
@@ -148,11 +147,6 @@ void InitializeFragmentNormal(inout interpolators i)
         tangentSpaceNormal.y * binormal +
         tangentSpaceNormal.z * i.normal
     );
-
-    //Swap y and z since normal map store z-UP
-    i.normal = i.normal.xzy;
-
-    i.normal = normalize(i.normal);
 }
 
 float4 frag(interpolators i) : SV_TARGET

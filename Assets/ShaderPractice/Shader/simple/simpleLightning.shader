@@ -65,6 +65,25 @@ Shader "Unlit/simpleLightning"
             #include "MyLighting.cginc"
             ENDCG
         }
+
+        Pass
+        {
+            Tags
+            {
+                "LightMode" = "ShadowCaster"
+            }
+            
+			CGPROGRAM
+
+			#pragma target 3.0
+
+			#pragma vertex MyShadowVertexProgram 
+			#pragma fragment MyShadowFragmentProgram
+
+			#include "MyShadows.cginc"
+
+			ENDCG
+        }
     }
 
 }
